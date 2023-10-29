@@ -134,4 +134,14 @@ def db_init():
             );
             """
         )
+    with conn:
+        c.execute(
+            """
+            CREATE TABLE IF NOT EXISTS account(
+            id TEXT PRIMARY KEY, 
+            auth_type TEXT NOT NULL,
+            password TEXT NOT NULL
+            )
+            """
+        )
     conn.close()
