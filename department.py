@@ -23,8 +23,7 @@ def verify_department_id(department_id):
 
 # function to show the details of department(s) given in a list (provided as a parameter)
 def show_department_details(list_of_departments):
-    department_titles = ['Department ID', 'Department name', 'Description', 'Contact number',
-                     'Alternate contact number', 'Address', 'Email ID']
+    department_titles = ['Department ID', 'Department name', 'Description', 'Contact number','Address']
     if len(list_of_departments) == 0:
         st.warning('No data to show')
     elif len(list_of_departments) == 1:
@@ -78,10 +77,8 @@ class Department:
         self.name = str()
         self.id = str()
         self.description = str()
-        self.contact_number_1 = str()
-        self.contact_number_2 = str()
+        self.contact_number = str()
         self.address = str()
-        self.email_id = str()
 
     # method to add a new department record to the database
     def add_department(self):
@@ -89,10 +86,7 @@ class Department:
         self.name = st.text_input('Department name')
         self.description = st.text_area('Description')
         self.contact_number_1 = st.text_input('Contact number')
-        contact_number_2 = st.text_input('Alternate contact number (optional)')
-        self.contact_number_2 = (lambda phone : None if phone == '' else phone)(contact_number_2)
         self.address = st.text_area('Address')
-        self.email_id = st.text_input('Email ID')
         self.id = generate_department_id()
         save = st.button('Save')
 
@@ -104,18 +98,15 @@ class Department:
                     """
                     INSERT INTO department_record
                     (
-                        id, name, description, contact_number_1, contact_number_2,
-                        address, email_id
+                        id, name, description, contact_number, address
                     )
                     VALUES (
-                        :id, :name, :desc, :phone_1, :phone_2, :address, :email_id
+                        :id, :name, :desc, :phone, :address
                     );
                     """,
                     {
                         'id': self.id, 'name': self.name, 'desc': self.description,
-                        'phone_1': self.contact_number_1,
-                        'phone_2': self.contact_number_2, 'address': self.address,
-                        'email_id': self.email_id
+                        'phone': self.contact_number, 'address': self.address,
                     }
                 )
             st.success('Department details saved successfully.')
@@ -148,11 +139,8 @@ class Department:
 
             st.write('Enter new details of the department:')
             self.description = st.text_area('Description')
-            self.contact_number_1 = st.text_input('Contact number')
-            contact_number_2 = st.text_input('Alternate contact number (optional)')
-            self.contact_number_2 = (lambda phone : None if phone == '' else phone)(contact_number_2)
+            self.contact_number = st.text_input('Contact number')
             self.address = st.text_area('Address')
-            self.email_id = st.text_input('Email ID')
             update = st.button('Update')
 
             # executing SQLite statements to update this department's record in the database
@@ -161,16 +149,13 @@ class Department:
                     c.execute(
                         """
                         UPDATE department_record
-                        SET description = :desc,
-                        contact_number_1 = :phone_1, contact_number_2 = :phone_2,
-                        address = :address, email_id = :email_id
+                        SET description = :desc, contact_number = :phone, address = :address
                         WHERE id = :id;
                         """,
                         {
                             'id': id, 'desc': self.description,
-                            'phone_1': self.contact_number_1,
-                            'phone_2': self.contact_number_2,
-                            'address': self.address, 'email_id': self.email_id
+                            'phone': self.contact_number,
+                            'address': self.address
                         }
                     )
                 st.success('Department details updated successfully.')

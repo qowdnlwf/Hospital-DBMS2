@@ -7,3 +7,4 @@ password = '123456'  # e.g. password = '1234'
 database_name = 'my_hospital'  # e.g. database_name = 'database_1A'
 edit_mode_password = '123456'  # e.g. edit_mode_password = 'allow_edit'
 dr_mls_access_code = '123456'  # e.g. dr_mls_access_code = 'access_auth'
+

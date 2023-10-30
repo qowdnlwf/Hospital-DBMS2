@@ -4,6 +4,7 @@ import database as db
 import pandas as pd
 import department
 
+
 # function to verify doctor id
 def verify_doctor_id(doctor_id):
     verify = False
@@ -22,25 +23,24 @@ def verify_doctor_id(doctor_id):
     conn.close()
     return verify
 
+
 # function to show the details of doctor(s) given in a list (provided as a parameter)
 def show_doctor_details(list_of_doctors):
     doctor_titles = ['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)',
-                     'Blood group', 'Department ID', 'Department name',
-                     'Contact number', 'Alternate contact number', 'Aadhar ID / Voter ID',
-                     'Email ID', 'Qualification', 'Specialisation',
-                     'Years of experience', 'Address', 'City', 'State', 'PIN code']
+                     'Department ID', 'Department name', 'Contact number']
     if len(list_of_doctors) == 0:
         st.warning('No data to show')
     elif len(list_of_doctors) == 1:
         doctor_details = [x for x in list_of_doctors[0]]
-        series = pd.Series(data = doctor_details, index = doctor_titles)
+        series = pd.Series(data=doctor_details, index=doctor_titles)
         st.write(series)
     else:
         doctor_details = []
         for doctor in list_of_doctors:
             doctor_details.append([x for x in doctor])
-        df = pd.DataFrame(data = doctor_details, columns = doctor_titles)
+        df = pd.DataFrame(data=doctor_details, columns=doctor_titles)
         st.write(df)
+
 
 # function to calculate age using given date of birth
 def calculate_age(dob):
@@ -48,12 +48,14 @@ def calculate_age(dob):
     age = today.year - dob.year - ((dob.month, dob.day) > (today.month, today.day))
     return age
 
+
 # function to generate unique doctor id using current date and time
 def generate_doctor_id():
     id_1 = datetime.now().strftime('%S%M%H')
     id_2 = datetime.now().strftime('%Y%m%d')[2:]
     id = f'DR-{id_1}-{id_2}'
     return id
+
 
 # function to fetch department name from the database for the given department id
 def get_department_name(dept_id):
@@ -65,9 +67,10 @@ def get_department_name(dept_id):
             FROM department_record
             WHERE id = :id;
             """,
-            { 'id': dept_id }
+            {'id': dept_id}
         )
     return c.fetchone()[0]
+
 
 # class containing all the fields and methods required to work with the doctors' table in the database
 class Doctor:
@@ -78,34 +81,20 @@ class Doctor:
         self.age = int()
         self.gender = str()
         self.date_of_birth = str()
-        self.blood_group = str()
         self.department_id = str()
         self.department_name = str()
-        self.contact_number_1 = str()
-        self.contact_number_2 = str()
-        self.aadhar_or_voter_id = str()
-        self.email_id = str()
-        self.qualification = str()
-        self.specialisation = str()
-        self.years_of_experience = int()
-        self.address = str()
-        self.city = str()
-        self.state = str()
-        self.pin_code = str()
+        self.contact_number = str()
 
     # method to add a new doctor record to the database
     def add_doctor(self):
         st.write('Enter doctor details:')
         self.name = st.text_input('Full name')
-        gender = st.radio('Gender', ['Female', 'Male', 'Other'])
-        if gender == 'Other':
-            gender = st.text_input('Please mention')
+        gender = st.radio('Gender', ['Female', 'Male'])
         self.gender = gender
         dob = st.date_input('Date of birth (YYYY/MM/DD)')
         st.info('If the required date is not in the calendar, please type it in the box above.')
-        self.date_of_birth = dob.strftime('%d-%m-%Y')       # converts date of birth to the desired string format
+        self.date_of_birth = dob.strftime('%d-%m-%Y')  # converts date of birth to the desired string format
         self.age = calculate_age(dob)
-        self.blood_group = st.text_input('Blood group')
         department_id = st.text_input('Department ID')
         if department_id == '':
             st.empty()
@@ -115,18 +104,7 @@ class Doctor:
             st.success('Verified')
             self.department_id = department_id
             self.department_name = get_department_name(department_id)
-        self.contact_number_1 = st.text_input('Contact number')
-        contact_number_2 = st.text_input('Alternate contact number (optional)')
-        self.contact_number_2 = (lambda phone : None if phone == '' else phone)(contact_number_2)
-        self.aadhar_or_voter_id = st.text_input('Aadhar ID / Voter ID')
-        self.email_id = st.text_input('Email ID')
-        self.qualification = st.text_input('Qualification')
-        self.specialisation = st.text_input('Specialisation')
-        self.years_of_experience = st.number_input('Years of experience', value = 0, min_value = 0, max_value = 100)
-        self.address = st.text_area('Address')
-        self.city = st.text_input('City')
-        self.state = st.text_input('State')
-        self.pin_code = st.text_input('PIN code')
+        self.contact_number = st.text_input('Contact number')
         self.id = generate_doctor_id()
         save = st.button('Save')
 
@@ -138,36 +116,23 @@ class Doctor:
                     """
                     INSERT INTO doctor_record
                     (
-                        id, name, age, gender, date_of_birth, blood_group,
-                        department_id, department_name, contact_number_1,
-                        contact_number_2, aadhar_or_voter_id, email_id,
-                        qualification, specialisation, years_of_experience,
-                        address, city, state, pin_code
+                        id, name, age, gender, date_of_birth,
+                        department_id, department_name, contact_number      
                     )
                     VALUES (
-                        :id, :name, :age, :gender, :dob, :blood_group, :dept_id,
-                        :dept_name, :phone_1, :phone_2, :uid, :email_id, :qualification,
-                        :specialisation, :experience, :address, :city, :state, :pin
+                        :id, :name, :age, :gender, :dob,  :dept_id, :dept_name, :phone
                     );
                     """,
                     {
                         'id': self.id, 'name': self.name, 'age': self.age,
                         'gender': self.gender, 'dob': self.date_of_birth,
-                        'blood_group': self.blood_group,
                         'dept_id': self.department_id,
                         'dept_name': self.department_name,
-                        'phone_1': self.contact_number_1,
-                        'phone_2': self.contact_number_2,
-                        'uid': self.aadhar_or_voter_id, 'email_id': self.email_id,
-                        'qualification': self.qualification,
-                        'specialisation': self.specialisation,
-                        'experience': self.years_of_experience,
-                        'address': self.address, 'city': self.city,
-                        'state': self.state, 'pin': self.pin_code
+                        'phone': self.contact_number
                     }
                 )
             st.success('Doctor details saved successfully.')
-            st.write('Your Doctor ID is: ', self.id)
+            st.write('The New Doctor ID is: ', self.id)
             conn.close()
 
     # method to update an existing doctor record in the database
@@ -189,7 +154,7 @@ class Doctor:
                     FROM doctor_record
                     WHERE id = :id;
                     """,
-                    { 'id': id }
+                    {'id': id}
                 )
                 st.write('Here are the current details of the doctor:')
                 show_doctor_details(c.fetchall())
@@ -204,17 +169,7 @@ class Doctor:
                 st.success('Verified')
                 self.department_id = department_id
                 self.department_name = get_department_name(department_id)
-            self.contact_number_1 = st.text_input('Contact number')
-            contact_number_2 = st.text_input('Alternate contact number (optional)')
-            self.contact_number_2 = (lambda phone : None if phone == '' else phone)(contact_number_2)
-            self.email_id = st.text_input('Email ID')
-            self.qualification = st.text_input('Qualification')
-            self.specialisation = st.text_input('Specialisation')
-            self.years_of_experience = st.number_input('Years of experience', value = 0, min_value = 0, max_value = 100)
-            self.address = st.text_area('Address')
-            self.city = st.text_input('City')
-            self.state = st.text_input('State')
-            self.pin_code = st.text_input('PIN code')
+            self.contact_number = st.text_input('Contact number')
             update = st.button('Update')
 
             # executing SQLite statements to update this doctor's record in the database
@@ -226,7 +181,7 @@ class Doctor:
                         FROM doctor_record
                         WHERE id = :id;
                         """,
-                        { 'id': id }
+                        {'id': id}
                     )
 
                     # converts date of birth to the required format for age calculation
@@ -239,23 +194,13 @@ class Doctor:
                         """
                         UPDATE doctor_record
                         SET age = :age, department_id = :dept_id,
-                        department_name = :dept_name, contact_number_1 = :phone_1,
-                        contact_number_2 = :phone_2, email_id = :email_id,
-                        qualification = :qualification, specialisation = :specialisation,
-                        years_of_experience = :experience, address = :address,
-                        city = :city, state = :state, pin_code = :pin
+                        department_name = :dept_name, contact_number = :phone,
                         WHERE id = :id;
                         """,
                         {
                             'id': id, 'age': self.age, 'dept_id': self.department_id,
                             'dept_name': self.department_name,
-                            'phone_1': self.contact_number_1,
-                            'phone_2': self.contact_number_2, 'email_id': self.email_id,
-                            'qualification': self.qualification,
-                            'specialisation': self.specialisation,
-                            'experience': self.years_of_experience,
-                            'address': self.address, 'city': self.city,
-                            'state': self.state, 'pin': self.pin_code
+                            'phone': self.contact_number,
                         }
                     )
                 st.success('Doctor details updated successfully.')
@@ -280,7 +225,7 @@ class Doctor:
                     FROM doctor_record
                     WHERE id = :id;
                     """,
-                    { 'id': id }
+                    {'id': id}
                 )
                 st.write('Here are the details of the doctor to be deleted:')
                 show_doctor_details(c.fetchall())
@@ -296,7 +241,7 @@ class Doctor:
                             DELETE FROM doctor_record
                             WHERE id = :id;
                             """,
-                            { 'id': id }
+                            {'id': id}
                         )
                         st.success('Doctor details deleted successfully.')
             conn.close()
@@ -331,7 +276,7 @@ class Doctor:
                     FROM doctor_record
                     WHERE id = :id;
                     """,
-                    { 'id': id }
+                    {'id': id}
                 )
                 st.write('Here are the details of the doctor you searched for:')
                 show_doctor_details(c.fetchall())

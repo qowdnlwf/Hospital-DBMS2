@@ -1,12 +1,14 @@
 import sqlite3 as sql
 import config
 
+
 # function to establish connection to the database, enable foreign key constraint support, and create cursor
 def connection():
     conn = sql.connect(config.database_name + '.db')
     conn.execute("PRAGMA foreign_keys = ON;")
     c = conn.cursor()
     return conn, c
+
 
 # function to establish connection to the database and create tables (if they don't exist yet)
 def db_init():
@@ -48,20 +50,9 @@ def db_init():
                 age INTEGER NOT NULL,
                 gender TEXT NOT NULL,
                 date_of_birth TEXT NOT NULL,
-                blood_group TEXT NOT NULL,
                 department_id TEXT NOT NULL,
                 department_name TEXT NOT NULL,
-                contact_number_1 TEXT NOT NULL,
-                contact_number_2 TEXT,
-                aadhar_or_voter_id TEXT NOT NULL UNIQUE,
-                email_id TEXT NOT NULL UNIQUE,
-                qualification TEXT NOT NULL,
-                specialisation TEXT NOT NULL,
-                years_of_experience INTEGER NOT NULL,
-                address TEXT NOT NULL,
-                city TEXT NOT NULL,
-                state TEXT NOT NULL,
-                pin_code TEXT NOT NULL,
+                contact_number TEXT NOT NULL,    
                 FOREIGN KEY (department_id) REFERENCES department_record(id)
                 ON UPDATE CASCADE
                 ON DELETE RESTRICT
@@ -75,10 +66,8 @@ def db_init():
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL UNIQUE,
                 description TEXT NOT NULL,
-                contact_number_1 TEXT NOT NULL,
-                contact_number_2 TEXT,
-                address TEXT NOT NULL,
-                email_id TEXT NOT NULL UNIQUE
+                contact_number TEXT NOT NULL,
+                address TEXT NOT NULL
             );
             """
         )
@@ -134,14 +123,15 @@ def db_init():
             );
             """
         )
+
     with conn:
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS account(
-            id TEXT PRIMARY KEY, 
+            user_id TEXT PRIMARY KEY, 
             auth_type TEXT NOT NULL,
             password TEXT NOT NULL
-            )
+            );
             """
         )
     conn.close()

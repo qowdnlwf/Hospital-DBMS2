@@ -1,12 +1,47 @@
 import streamlit as st
+
+import config
 import database as db
 from patient import Patient
 from department import Department
 from doctor import Doctor
 from prescription import Prescription
 from medical_test import Medical_Test
-import config
 import sqlite3 as sql
+
+
+def verify_password(id,password):
+    if id == 'root':
+        return password=='123456', 'Admin'
+    verify = False
+    conn, c = db.connection()
+    with conn:
+        c.execute(
+            """
+            SELECT password,auth_type
+            FROM account
+            WHERE user_id = :id;
+            """,
+            {"id":id}
+        )
+    type = ''
+    for pd,tp in c.fetchall():
+        if pd == password:
+            verify = True
+            type = tp
+            break
+    conn.close()
+
+    return verify,type
+
+def login():
+    if access:
+        st.sidebar.success(f'Welcome {auth_type}')
+        home(auth_type)
+    elif password == '':
+        st.empty()
+    else:
+        st.sidebar.error("Wrong Password")
 
 
 # function to verify edit mode password
@@ -66,12 +101,13 @@ def patients():
 
 # function to perform various operations of the doctor module (according to user's selection)
 def doctors():
+
     st.header('DOCTORS')
     option_list = ['', 'Add doctor', 'Update doctor', 'Delete doctor', 'Show complete doctor record', 'Search doctor']
     option = st.sidebar.selectbox('Select function', option_list)
     dr = Doctor()
     if (option == option_list[1] or option == option_list[2] or option == option_list[
-        3]) and verify_edit_mode_password():
+        3]) :
         if option == option_list[1]:
             st.subheader('ADD DOCTOR')
             dr.add_doctor()
@@ -171,29 +207,50 @@ def departments():
 
 
 # function to implement and initialise home/main menu on successful user authentication
-def home():
-    db.db_init()  # establishes connection to the database and create tables (if they don't exist yet)
-    option = st.sidebar.selectbox('Select module',
-                                  ['', 'Patients', 'Doctors', 'Prescriptions', 'Medical Tests', 'Departments'])
-    if option == 'Patients':
-        patients()
-    elif option == 'Doctors':
-        doctors()
-    elif option == 'Prescriptions':
-        prescriptions()
-    elif option == 'Medical Tests':
-        medical_tests()
-    elif option == 'Departments':
-        departments()
+def home(auth_type):
+    if auth_type == 'Admin':
+        option = st.sidebar.selectbox('Select Module',
+                                      ['','Patients', 'Doctors', 'Prescriptions', 'Medical Tests', 'Departments'])
+        if option == 'Patients':
+            patients()
+        elif option == 'Doctors':
+            doctors()
+        elif option == 'Prescriptions':
+            prescriptions()
+        elif option == 'Medical Tests':
+            medical_tests()
+        elif option == 'Departments':
+            departments()
+
+        if auth_type == 'Patient':
+            option = st.sidebar.selectbox('Select function',
+                                          ['','Edit','Query'])
+
+        if auth_type == 'Doctor':
+            pass
+
+if 'login' not in st.session_state:
+    st.session_state.login = False
+
+def login_clicked():
+    st.sidebar.subheader('121')
+    st.session_state.login = True
 
 
+st.subheader(st.session_state.login)
 st.title('HEALTHCARE INFORMATION MANAGEMENT SYSTEM')
-auth = st.sidebar.selectbox('Who are you', ['', 'Patients', 'Doctors', 'Admin'])
-password = st.sidebar.text_input('Enter password', type='password')  # user password authentication
-if password == config.password:
-    st.sidebar.success('Verified')
-    home()
-elif password == '':
-    st.empty()
+db.db_init()  # establishes connection to the database and create tables (if they don't exist yet)
+# st.link_button('Register','https://localhost:8501/Register')
+access = False
+if st.session_state.login==True:
+    login()
 else:
-    st.sidebar.error('Invalid password')
+    user_id = st.sidebar.text_input('Enter your id')
+    password = st.sidebar.text_input('Enter password', type='password')  # user password authentication
+    access, auth_type = verify_password(user_id, password)
+    login_button = st.sidebar.button('Login', on_click=login_clicked())
+
+
+
+
+
