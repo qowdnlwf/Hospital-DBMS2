@@ -35,9 +35,9 @@ def verify_password(id,password):
     return verify,type
 
 def login():
-    if access:
-        st.sidebar.success(f'Welcome {auth_type}')
-        home(auth_type)
+    if st.session_state.access:
+        st.sidebar.success(f'Welcome {st.session_state.auth_type}')
+        home(st.session_state.auth_type)
     elif password == '':
         st.empty()
     else:
@@ -233,22 +233,20 @@ if 'login' not in st.session_state:
     st.session_state.login = False
 
 def login_clicked():
-    st.sidebar.subheader('121')
     st.session_state.login = True
+    st.session_state.access, st.session_state.auth_type = verify_password(user_id, password)
 
 
-st.subheader(st.session_state.login)
 st.title('HEALTHCARE INFORMATION MANAGEMENT SYSTEM')
 db.db_init()  # establishes connection to the database and create tables (if they don't exist yet)
 # st.link_button('Register','https://localhost:8501/Register')
-access = False
+
 if st.session_state.login==True:
     login()
 else:
     user_id = st.sidebar.text_input('Enter your id')
     password = st.sidebar.text_input('Enter password', type='password')  # user password authentication
-    access, auth_type = verify_password(user_id, password)
-    login_button = st.sidebar.button('Login', on_click=login_clicked())
+    login_button = st.sidebar.button('Login', on_click=login_clicked)
 
 
 

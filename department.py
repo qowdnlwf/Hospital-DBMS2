@@ -21,6 +21,25 @@ def verify_department_id(department_id):
     conn.close()
     return verify
 
+def verify_department_name(department_name):
+    verify = False
+    conn, c = db.connection()
+    with conn:
+        c.execute(
+            """
+            SELECT name
+            FROM department_record;
+            """
+        )
+    for name in c.fetchall():
+        if name[0] == department_name:
+            verify = True
+            break
+    conn.close()
+    return verify
+
+
+
 # function to show the details of department(s) given in a list (provided as a parameter)
 def show_department_details(list_of_departments):
     department_titles = ['Department ID', 'Department name', 'Description', 'Contact number','Address']
@@ -85,7 +104,7 @@ class Department:
         st.write('Enter department details:')
         self.name = st.text_input('Department name')
         self.description = st.text_area('Description')
-        self.contact_number_1 = st.text_input('Contact number')
+        self.contact_number = st.text_input('Contact number')
         self.address = st.text_area('Address')
         self.id = generate_department_id()
         save = st.button('Save')

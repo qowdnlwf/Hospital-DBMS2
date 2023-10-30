@@ -71,6 +71,19 @@ def get_department_name(dept_id):
         )
     return c.fetchone()[0]
 
+def get_department_id(dept_name):
+    conn, c = db.connection()
+    with conn:
+        c.execute(
+            """
+            SELECT id
+            FROM department_record
+            WHERE name = :name;
+            """,
+            {'name': dept_name}
+        )
+    return c.fetchone()[0]
+
 
 # class containing all the fields and methods required to work with the doctors' table in the database
 class Doctor:
@@ -95,15 +108,15 @@ class Doctor:
         st.info('If the required date is not in the calendar, please type it in the box above.')
         self.date_of_birth = dob.strftime('%d-%m-%Y')  # converts date of birth to the desired string format
         self.age = calculate_age(dob)
-        department_id = st.text_input('Department ID')
-        if department_id == '':
+        department_name = st.text_input('Department Name')
+        if department_name == '':
             st.empty()
-        elif not department.verify_department_id(department_id):
-            st.error('Invalid Department ID')
+        elif not department.verify_department_name(department_name):
+            st.error('Invalid Department Name')
         else:
             st.success('Verified')
-            self.department_id = department_id
-            self.department_name = get_department_name(department_id)
+            self.department_name = department_name
+            self.department_id = get_department_id(department_name)
         self.contact_number = st.text_input('Contact number')
         self.id = generate_doctor_id()
         save = st.button('Save')
