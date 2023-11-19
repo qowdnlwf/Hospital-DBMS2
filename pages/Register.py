@@ -18,6 +18,9 @@ identity = st.radio('What is your identity',['Patient','Doctor'])
 if identity == 'Doctor':
     new_doc = Doctor()
     new_doc.add_doctor()
+elif identity == 'Patient':
+    new_pat = Patient()
+    new_pat.add_patient()
 # user_id = st.text_input('Enter your id')
 #
 # password = st.text_input('Enter password', type='password')  # user password authentication

@@ -86,9 +86,8 @@ class Patient:
     def add_patient(self):
         st.write('Enter patient details:')
         self.name = st.text_input('Full name')
-        gender = st.radio('Gender', ['Female', 'Male', 'Other'])
-        if gender == 'Other':
-            gender = st.text_input('Please mention')
+        gender = st.radio('Gender', ['Female', 'Male'])
+
         self.gender = gender
         dob = st.date_input('Date of birth (YYYY/MM/DD)')
         st.info('If the required date is not in the calendar, please type it in the box above.')

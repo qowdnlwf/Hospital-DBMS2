@@ -103,7 +103,7 @@ def patients():
 def doctors():
 
     st.header('DOCTORS')
-    option_list = ['', 'Add doctor', 'Update doctor', 'Delete doctor', 'Show complete doctor record', 'Search doctor']
+    option_list = ['', 'Add doctor', 'Update doctor', 'Delete doctor', 'Show complete doctor record', 'Search doctor','Verification']
     option = st.sidebar.selectbox('Select function', option_list)
     dr = Doctor()
     if (option == option_list[1] or option == option_list[2] or option == option_list[
@@ -126,6 +126,9 @@ def doctors():
     elif option == option_list[5]:
         st.subheader('SEARCH DOCTOR')
         dr.search_doctor()
+    elif option == option_list[6]:
+        st.subheader("VERIFICATION")
+
 
 
 # function to perform various operations of the prescription module (according to user's selection)

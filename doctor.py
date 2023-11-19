@@ -130,10 +130,10 @@ class Doctor:
                     INSERT INTO doctor_record
                     (
                         id, name, age, gender, date_of_birth,
-                        department_id, department_name, contact_number      
+                        department_id, department_name, contact_number,verified      
                     )
                     VALUES (
-                        :id, :name, :age, :gender, :dob,  :dept_id, :dept_name, :phone
+                        :id, :name, :age, :gender, :dob,  :dept_id, :dept_name, :phone, :verified
                     );
                     """,
                     {
@@ -141,11 +141,12 @@ class Doctor:
                         'gender': self.gender, 'dob': self.date_of_birth,
                         'dept_id': self.department_id,
                         'dept_name': self.department_name,
-                        'phone': self.contact_number
+                        'phone': self.contact_number,
+                        'verified': False
                     }
                 )
             st.success('Doctor details saved successfully.')
-            st.write('The New Doctor ID is: ', self.id)
+            st.write('The New Doctor ID is: ', self.id, '\nWaiting to be verified')
             conn.close()
 
     # method to update an existing doctor record in the database
@@ -294,3 +295,16 @@ class Doctor:
                 st.write('Here are the details of the doctor you searched for:')
                 show_doctor_details(c.fetchall())
             conn.close()
+
+    def verify_doctor(self):
+        conn, c = db.connection()
+        with conn:
+            c.execute(
+                """
+                SELECT name
+                FROM doctor_record
+                WHERE verified = FALSE;
+                """,
+        )
+
+
