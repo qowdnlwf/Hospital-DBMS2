@@ -27,7 +27,7 @@ def verify_doctor_id(doctor_id):
 # function to show the details of doctor(s) given in a list (provided as a parameter)
 def show_doctor_details(list_of_doctors):
     doctor_titles = ['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)',
-                     'Department ID', 'Department name', 'Contact number']
+                     'Department ID',  'Contact number']
     if len(list_of_doctors) == 0:
         st.warning('No data to show')
     elif len(list_of_doctors) == 1:
