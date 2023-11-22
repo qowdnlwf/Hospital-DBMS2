@@ -56,6 +56,7 @@ def db_init():
                 date_of_birth TEXT NOT NULL,
                 contact_number TEXT NOT NULL,
                 department_id TEXT NOT NULL,
+                verified BOOL NOT NULL,
                 FOREIGN KEY (department_id) REFERENCES department_record(id)
                 ON UPDATE CASCADE
                 ON DELETE RESTRICT 

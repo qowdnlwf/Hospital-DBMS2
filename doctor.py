@@ -96,6 +96,7 @@ class Doctor:
         self.date_of_birth = str()
         self.department_id = str()
         self.contact_number = str()
+        self.password = str()
 
     # method to add a new doctor record to the database
     def add_doctor(self):
@@ -145,6 +146,78 @@ class Doctor:
             st.success('Doctor details saved successfully.')
             st.write('The New Doctor ID is: ', self.id, '\nWaiting to be verified')
             conn.close()
+
+
+    def add_doctor_account(self):
+        st.write('Enter doctor details:')
+        self.name = st.text_input('Full name')
+        gender = st.radio('Gender', ['Female', 'Male'])
+        self.gender = gender
+        dob = st.date_input('Date of birth (YYYY/MM/DD)')
+        st.info('If the required date is not in the calendar, please type it in the box above.')
+        self.date_of_birth = dob.strftime('%d-%m-%Y')  # converts date of birth to the desired string format
+        self.age = calculate_age(dob)
+        department_name = st.text_input('Department Name')
+        if department_name == '':
+            st.empty()
+        elif not department.verify_department_name(department_name):
+            st.error('Invalid Department Name')
+        else:
+            st.success('Verified')
+            self.department_id = get_department_id(department_name)
+        self.contact_number = st.text_input('Contact number')
+        self.id = generate_doctor_id()
+        self.password = st.text_input('Enter password',type="password")
+        password_confirm = st.text_input('Confirm password',type='password')
+        save = st.button('Save')
+
+        # executing SQLite statements to save the new doctor record to the database
+        if save:
+            if self.password != password_confirm:
+                st.error('Password Confirmation Error')
+                return
+            conn, c = db.connection()
+            with conn:
+                c.execute(
+                    """
+                    INSERT INTO doctor_record
+                    (
+                        id, name, age, gender, date_of_birth,
+                        department_id,  contact_number,verified      
+                    )
+                    VALUES (
+                        :id, :name, :age, :gender, :dob,  :dept_id,  :phone, :verified
+                    );
+                    """,
+                    {
+                        'id': self.id, 'name': self.name, 'age': self.age,
+                        'gender': self.gender, 'dob': self.date_of_birth,
+                        'dept_id': self.department_id,
+                        'phone': self.contact_number,
+                        'verified': False
+                    }
+                )
+
+                c.execute(
+                    """
+                    INSERT INTO account
+                    (
+                        user_id, auth_type,password
+                    )
+                    VALUES (
+                        :id, :type, :passwd
+                    );
+                    """,
+                    {
+                        'id': self.id, 'type': "Doctor", 'passwd': self.password
+                    }
+
+                )
+            st.success('Doctor details saved successfully.')
+            st.write('The New Doctor ID is: ', self.id, '\nWaiting to be verified')
+            conn.close()
+
+
 
     # method to update an existing doctor record in the database
     def update_doctor(self):

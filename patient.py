@@ -181,7 +181,7 @@ class Patient:
                     );
                     """,
                     {
-                        'id' : self.id, 'type':"patient", 'passwd':self.password
+                        'id' : self.id, 'type':"Patient", 'passwd':self.password
                     }
 
                 )
