@@ -10,9 +10,9 @@ from medical_test import Medical_Test
 import sqlite3 as sql
 
 
-def verify_password(id,password):
+def verify_password(id, password):
     if id == 'root':
-        return password=='123456', 'Admin'
+        return password == '123456', 'Admin'
     verify = False
     conn, c = db.connection()
     with conn:
@@ -22,17 +22,18 @@ def verify_password(id,password):
             FROM account
             WHERE user_id = :id;
             """,
-            {"id":id}
+            {"id": id}
         )
     type = ''
-    for pd,tp in c.fetchall():
+    for pd, tp in c.fetchall():
         if pd == password:
             verify = True
             type = tp
             break
     conn.close()
 
-    return verify,type
+    return verify, type
+
 
 def login():
     if st.session_state.access:
@@ -101,13 +102,13 @@ def patients():
 
 # function to perform various operations of the doctor module (according to user's selection)
 def doctors():
-
     st.header('DOCTORS')
-    option_list = ['', 'Add doctor', 'Update doctor', 'Delete doctor', 'Show complete doctor record', 'Search doctor','Verification']
+    option_list = ['', 'Add doctor', 'Update doctor', 'Delete doctor', 'Show complete doctor record', 'Search doctor',
+                   'Verification']
     option = st.sidebar.selectbox('Select function', option_list)
     dr = Doctor()
     if (option == option_list[1] or option == option_list[2] or option == option_list[
-        3]) :
+        3]):
         if option == option_list[1]:
             st.subheader('ADD DOCTOR')
             dr.add_doctor()
@@ -128,7 +129,6 @@ def doctors():
         dr.search_doctor()
     elif option == option_list[6]:
         st.subheader("VERIFICATION")
-
 
 
 # function to perform various operations of the prescription module (according to user's selection)
@@ -213,7 +213,7 @@ def departments():
 def home(auth_type):
     if auth_type == 'Admin':
         option = st.sidebar.selectbox('Select Module',
-                                      ['','Patients', 'Doctors', 'Prescriptions', 'Medical Tests', 'Departments'])
+                                      ['', 'Patients', 'Doctors', 'Prescriptions', 'Medical Tests', 'Departments'])
         if option == 'Patients':
             patients()
         elif option == 'Doctors':
@@ -225,33 +225,32 @@ def home(auth_type):
         elif option == 'Departments':
             departments()
 
-        if auth_type == 'Patient':
-            option = st.sidebar.selectbox('Select function',
-                                          ['','Edit','Query'])
+    if auth_type == 'Patient':
+        option = st.sidebar.selectbox('Select function', ['', 'Edit', 'Query'])
 
-        if auth_type == 'Doctor':
-            pass
+    if auth_type == 'Doctor':
+        pass
+
 
 if 'login' not in st.session_state:
     st.session_state.login = False
 
+
 def login_clicked():
-    st.session_state.login = True
     st.session_state.access, st.session_state.auth_type = verify_password(user_id, password)
+    if st.session_state.access:
+        st.session_state.login = True
+    else:
+        st.sidebar.error('Invalid username or password')
+
 
 
 st.title('HEALTHCARE INFORMATION MANAGEMENT SYSTEM')
 db.db_init()  # establishes connection to the database and create tables (if they don't exist yet)
-# st.link_button('Register','https://localhost:8501/Register')
 
-if st.session_state.login==True:
+if st.session_state.login == True:
     login()
 else:
     user_id = st.sidebar.text_input('Enter your id')
     password = st.sidebar.text_input('Enter password', type='password')  # user password authentication
     login_button = st.sidebar.button('Login', on_click=login_clicked)
-
-
-
-
-

@@ -1,6 +1,7 @@
 import sqlite3 as sql
 import config
 
+
 # function to establish connection to the database, enable foreign key constraint support, and create cursor
 def connection():
     conn = sql.connect(config.database_name + '.db')
@@ -8,10 +9,11 @@ def connection():
     c = conn.cursor()
     return conn, c
 
+
 # function to establish connection to the database and create tables (if they don't exist yet)
 def db_init():
     conn, c = connection()
-    with conn: #病人
+    with conn:  # 病人
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS patient_record (
@@ -22,16 +24,15 @@ def db_init():
                 date_of_birth TEXT NOT NULL,
                 blood_group TEXT NOT NULL,
                 contact_number TEXT NOT NULL,
-                #这里删掉了投票id
                 weight INTEGER NOT NULL,
                 height INTEGER NOT NULL,
                 address TEXT NOT NULL,
-                room_id TEXT,
-
+                room_id TEXT
             );
             """
         )
-    with conn: #病房
+
+    with conn:  # 病房
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS room_record (
@@ -39,11 +40,12 @@ def db_init():
                 type TEXT NOT NULL,
                 capacity INT NOT NULL,
                 current INT NOT NULL, 
-                nurse_id TEXT NOT NULL,
+                nurse_id TEXT NOT NULL
             );
             """
         )
-    with conn:  #医生
+
+    with conn:  # 医生
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS doctor_record (
@@ -60,7 +62,7 @@ def db_init():
             );
             """
         )
-    with conn:  #科室
+    with conn:  # 科室
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS department_record (
@@ -68,11 +70,11 @@ def db_init():
                 name TEXT NOT NULL UNIQUE,
                 description TEXT NOT NULL,
                 contact_number TEXT NOT NULL,
-                address TEXT NOT NULL,
+                address TEXT NOT NULL
             );
             """
         )
-    with conn:  #病历
+    with conn:  # 病历
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS medical_record (
@@ -91,15 +93,14 @@ def db_init():
                 ON DELETE RESTRICT,
                 FOREIGN KEY (doctor_id) REFERENCES doctor_record(id)
                 ON UPDATE CASCADE
-                ON DELETE RESTRICT
-                FOREIGN KEY (medicine_1_name) REFERENCES pharmacy_record(medicine_name)
-                FOREIGN KEY (medicine_2_name) REFERENCES pharmacy_record(medicine_name)
+                ON DELETE RESTRICT,
+                FOREIGN KEY (medicine_1_name) REFERENCES pharmacy_record(medicine_name),
+                FOREIGN KEY (medicine_2_name) REFERENCES pharmacy_record(medicine_name),
                 FOREIGN KEY (medicine_3_name) REFERENCES pharmacy_record(medicine_name)
-
             );
             """
         )
-    with conn:  #检查结果
+    with conn:  # 检查结果
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS medical_test_record (
@@ -121,7 +122,7 @@ def db_init():
             );
             """
         )
-    with conn:  #药房
+    with conn:  # 药房
         c.execute(
             """
             CREATE TABLE IF NOT EXISTS pharmacy_record (
@@ -137,19 +138,6 @@ def db_init():
             id TEXT PRIMARY KEY, 
             auth_type TEXT NOT NULL,
             password TEXT NOT NULL
-            );
-            """
-        )
-    with conn:
-        c.execute(
-            """
-            CREATE TABLE IF NOT EXISTS room_record(
-                room_id TEXT PRIMARY KEY,
-                room_type TEXT NOT NULL,
-                num_beds INTEGER NOT NULL,
-                patient_names TEXT[],
-                patient_ids TEXT[]
-                charge_nurse TEXT NOT NULL
             );
             """
         )

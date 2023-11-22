@@ -95,31 +95,22 @@ class Patient:
                     (
                         id, name, age, gender, date_of_birth, blood_group,
                         contact_number, 
-                        weight, height, address, room, history
+                        weight, height, address, room_id
                     )
                     VALUES (
                         :id, :name, :age, :gender, :dob, :blood_group,
-                        :phone_1, :phone_2, :uid, :weight, :height,
-                        :address, :city, :state, :pin,
-                        :kin_name, :kin_relation, :kin_phone, :email_id,
-                        :reg_date, :reg_time
+                        :phone, :weight, :height,
+                        :address, room
                     );
                     """,
                     {
                         'id': self.id, 'name': self.name, 'age': self.age,
                         'gender': self.gender, 'dob': self.date_of_birth,
                         'blood_group': self.blood_group,
-                        'phone_1': self.contact_number_1,
-                        'phone_2': self.contact_number_2,
-                        'uid': self.aadhar_or_voter_id, 'weight': self.weight,
+                        'phone': self.contact_number,
+                        'weight': self.weight,
                         'height': self.height, 'address': self.address,
-                        'city': self.city, 'state': self.state,
-                        'pin': self.pin_code, 'kin_name': self.next_of_kin_name,
-                        'kin_relation': self.next_of_kin_relation_to_patient,
-                        'kin_phone': self.next_of_kin_contact_number,
-                        'email_id': self.email_id,
-                        'reg_date': self.date_of_registration,
-                        'reg_time': self.time_of_registration
+                        'room': None
                     }
                 )
             st.success('Patient details saved successfully.')
