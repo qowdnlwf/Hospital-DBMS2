@@ -37,7 +37,7 @@ def calculate_age(dob):
 # function to show the details of patient(s) given in a list (provided as a parameter)
 def show_patient_details(list_of_patients):
     patient_titles = ['Patient ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)',
-                     'Blood group', 'Contact number',  'Weight (kg)', 'Height (cm)', 'Address',]
+                     'Blood group', 'Contact number',  'Weight (kg)', 'Height (cm)', 'Address', 'ROOM']
     if len(list_of_patients) == 0:
         st.warning('No data to show')
     elif len(list_of_patients) == 1:
