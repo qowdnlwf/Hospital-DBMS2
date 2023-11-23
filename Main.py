@@ -2,7 +2,7 @@ import streamlit as st
 
 import config
 import database as db
-from patient import Patient
+from patient import *
 from department import Department
 from doctor import Doctor
 from prescription import Prescription
@@ -113,6 +113,9 @@ def query_2():
     st.header('Medical test')
     show_result(st.session_state.user)
 
+def query_3():
+    st.header('Doctor Information')
+    show_doctor()
 
 # function to perform various operations of the doctor module (according to user's selection)
 def doctors():
@@ -240,13 +243,15 @@ def home(auth_type):
             departments()
 
     if auth_type == 'Patient':
-        option = st.sidebar.selectbox('Select function', ['', 'Edit', 'Query'])
+        option = st.sidebar.selectbox('Select function', ['', 'Edit', 'Query','Test Result', 'Doctor Information'])
         if option == 'Edit':
             edit_account()
         if option == 'Query':
             query_1()
         if option == 'Test Result':
             query_2()
+        if option == 'Doctor Information':
+            query_3()
     if auth_type == 'Doctor':
         pass
 

@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime, date
 import database as db
 import pandas as pd
+from department import *
 
 # function to verify patient id
 def verify_patient_id(patient_id):
@@ -55,15 +56,41 @@ def show_patient_details(list_of_patients):
 def show_doctor():
     doctor_titles = ['Name', 'Age', 'Gender', 'Contact Number']
     conn, c = db.connection()
-    department = st.selectbox()
+    with conn:
+        c.execute(
+            """
+            SELECT name
+            FROM department_record
+            """
+        )
+    list_of_department = c.fetchall()
+    # list_of_department.insert(0,'')
+    new_list = []
+    for x in list_of_department:
+        new_list.append(x[0])
+
+    department = st.selectbox('Select Department', new_list)
     with conn:
         c.execute(
             """
             SELECT name,age,gender,contact_number
             FROM doctor_record
             WHERE department_id = :id;
-            """, {'id': get_department_name(department)}
+            """, {'id': get_department_id(department)}
         )
+    list_of_doctor = c.fetchall()
+    if len(list_of_doctor) == 0:
+        st.warning('No data to show')
+    elif len(list_of_doctor) == 1:
+        record_details = [x for x in list_of_doctor[0]]
+        series = pd.Series(data=record_details, index=doctor_titles)
+        st.write(series)
+    else:
+        record_details = []
+        for record in list_of_doctor:
+            record_details.append([x for x in record])
+        df = pd.DataFrame(data=record_details, columns=doctor_titles)
+        st.write(df)
 
 
 def show_medical_record(userID):

@@ -89,6 +89,19 @@ def get_department_name(dept_id):
         )
     return c.fetchone()[0]
 
+def get_department_id(dept_name):
+    conn, c = db.connection()
+    with conn:
+        c.execute(
+            """
+            SELECT id
+            FROM department_record
+            WHERE name = :name;
+            """,
+            {'name': dept_name}
+        )
+    return c.fetchone()[0]
+
 # class containing all the fields and methods required to work with the departments' table in the database
 class Department:
 
