@@ -239,11 +239,11 @@ class Doctor:
                 show_doctor_details(c.fetchall())
 
             st.write('Enter new details of the doctor:')
-            department_id = st.text_input('Department ID')
-            if department_id == '':
+            department_name = st.text_input('Department Name')
+            if department_name == '':
                 st.empty()
-            elif not department.verify_department_id(department_id):
-                st.error('Invalid Department ID')
+            elif not department.verify_department_name(department_name):
+                st.error('Invalid Department Name')
             else:
                 st.success('Found')
                 self.department_id = department_id

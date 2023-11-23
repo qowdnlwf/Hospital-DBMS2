@@ -1,7 +1,7 @@
 import streamlit as st
 import config
 import database as db
-from patient import Patient
+from patient import *
 from department import Department
 from doctor import Doctor
 from prescription import Prescription
@@ -92,6 +92,23 @@ def patients():
     elif option == option_list[5]:
         st.subheader('SEARCH PATIENT')
         p.search_patient()
+
+def edit_account():
+    st.header('PATIENTS')
+    p = Patient()
+    st.subheader('Update PATIENT')
+    p.update_patient()
+def query_1():
+    st.header('Medical Record')
+
+    show_medical_record(st.session_state.user)
+def query_2():
+    st.header('Medical test')
+    show_result(st.session_state.user)
+
+def query_3():
+    st.header('Doctor Information')
+    show_doctor()
 
 # function to perform various operations of the doctor module (according to user's selection)
 def doctors():
@@ -216,8 +233,15 @@ def home(auth_type):
             departments()
 
     if auth_type == 'Patient':
-        option = st.sidebar.selectbox('Select function', ['', 'Edit', 'Query'])
-
+        option = st.sidebar.selectbox('Select function', ['', 'Edit', 'Query','Test Result', 'Doctor Information'])
+        if option == 'Edit':
+            edit_account()
+        if option == 'Query':
+            query_1()
+        if option == 'Test Result':
+            query_2()
+        if option == 'Doctor Information':
+            query_3()
     if auth_type == 'Doctor':
         pass
 
@@ -225,14 +249,23 @@ def login_clicked():
     st.session_state.access, st.session_state.auth_type = verify_password(user_id, password)
     if st.session_state.access:
         st.session_state.login = True
+        st.session_state.user = user_id
     else:
         st.sidebar.error('Invalid username or password')
 
+
 if 'login' not in st.session_state:
     st.session_state.login = False
+if 'user' not in st.session_state:
+    st.session_state.user = None
+
+
+
 
 st.title('HEALTHCARE INFORMATION MANAGEMENT SYSTEM')
 db.db_init()  # establishes connection to the database and create tables (if they don't exist yet)
+
+
 
 if st.session_state.login == True:
     login()
