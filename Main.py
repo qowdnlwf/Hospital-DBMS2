@@ -122,6 +122,7 @@ def doctors():
         dr.search_doctor()
     elif option == option_list[6]:
         st.subheader("VERIFICATION")
+        dr.verify_doctor()
 
 # function to perform various operations of the prescription module (according to user's selection)
 def prescriptions():

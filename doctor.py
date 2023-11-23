@@ -4,7 +4,6 @@ import database as db
 import pandas as pd
 import department
 
-
 # function to verify doctor id
 def verify_doctor_id(doctor_id):
     verify = False
@@ -23,7 +22,6 @@ def verify_doctor_id(doctor_id):
     conn.close()
     return verify
 
-
 # function to show the details of doctor(s) given in a list (provided as a parameter)
 def show_doctor_details(list_of_doctors):
     doctor_titles = ['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)',
@@ -41,13 +39,11 @@ def show_doctor_details(list_of_doctors):
         df = pd.DataFrame(data=doctor_details, columns=doctor_titles)
         st.write(df)
 
-
 # function to calculate age using given date of birth
 def calculate_age(dob):
     today = date.today()
     age = today.year - dob.year - ((dob.month, dob.day) > (today.month, today.day))
     return age
-
 
 # function to generate unique doctor id using current date and time
 def generate_doctor_id():
@@ -55,7 +51,6 @@ def generate_doctor_id():
     id_2 = datetime.now().strftime('%Y%m%d')[2:]
     id = f'DR-{id_1}-{id_2}'
     return id
-
 
 # function to fetch department name from the database for the given department id
 def get_department_name(dept_id):
@@ -83,7 +78,6 @@ def get_department_id(dept_name):
             {'name': dept_name}
         )
     return c.fetchone()[0]
-
 
 # class containing all the fields and methods required to work with the doctors' table in the database
 class Doctor:
@@ -228,7 +222,7 @@ class Doctor:
         elif not verify_doctor_id(id):
             st.error('Invalid Doctor ID')
         else:
-            st.success('Verified')
+            st.success('Found')
             conn, c = db.connection()
 
             # shows the current details of the doctor before updating
@@ -251,7 +245,7 @@ class Doctor:
             elif not department.verify_department_id(department_id):
                 st.error('Invalid Department ID')
             else:
-                st.success('Verified')
+                st.success('Found')
                 self.department_id = department_id
                 self.department_name = get_department_name(department_id)
             self.contact_number = st.text_input('Contact number')
