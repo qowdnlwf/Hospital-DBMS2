@@ -51,6 +51,71 @@ def show_patient_details(list_of_patients):
         df = pd.DataFrame(data = patient_details, columns = patient_titles)
         st.write(df)
 
+
+def show_doctor():
+    doctor_titles = ['Name', 'Age', 'Gender', 'Contact Number']
+    conn, c = db.connection()
+    department = st.selectbox()
+    with conn:
+        c.execute(
+            """
+            SELECT name,age,gender,contact_number
+            FROM doctor_record
+            WHERE department_id = :id;
+            """, {'id': get_department_name(department)}
+        )
+
+
+def show_medical_record(userID):
+    record_titles = ['Patient ID', 'Doctor ID', 'Diagnosis', 'Comment', 'M1', 'M1_dosage', 'M2', 'M2_dosage', 'M3',
+                     'M3_dosage']
+    conn, c = db.connection()
+
+    with conn:
+        c.execute(
+            """
+            SELECT *
+            FROM medical_record
+            WHERE patient_id = :id;
+            """, {'id': userID}
+        )
+    list_records = c.fetchall()
+    if len(list_records) == 0:
+        st.warning('No data to show')
+    elif len(list_records) == 1:
+        record_details = [x for x in list_records[0]]
+        series = pd.Series(data=record_details, index=record_titles)
+        st.write(series)
+    else:
+        record_details = []
+        for record in list_records:
+            record_details.append([x for x in record])
+        df = pd.DataFrame(data=record_details, columns=record_titles)
+        st.write(df)
+
+
+def show_result(userID):
+    record_titles = ['Test ID', 'Test Name', 'Patient ID', 'Doctor ID', 'Test time', 'Result time', 'Result', 'Comment',
+                     'Cost']
+    conn, c = db.connection()
+
+    with conn:
+        c.execute(
+            """
+            SELECT *
+            FROM medical_test_record
+            WHERE patient_id = :id;
+            """, {'id': userID}
+        )
+    list_records = c.fetchall()
+    if len(list_records) == 0:
+        st.warning('No data to show')
+    else:
+        result_details = []
+        for record in list_records:
+            result_details.append([x for x in record])
+        df = pd.DataFrame(data=result_details, columns=record_titles)
+        st.write(df)
 # class containing all the fields and methods required to work with the patients' table in the database
 class Patient:
 
@@ -192,13 +257,6 @@ class Patient:
 
     # method to update an existing patient record in the database
     def update_patient(self):
-        id = st.text_input('Enter Patient ID of the patient to be updated')
-        if id == '':
-            st.empty()
-        elif not verify_patient_id(id):
-            st.error('Invalid Patient ID')
-        else:
-            st.success('Verified')
             conn, c = db.connection()
 
             # shows the current details of the patient before updating
@@ -209,26 +267,16 @@ class Patient:
                     FROM patient_record
                     WHERE id = :id;
                     """,
-                    { 'id': id }
+                    { 'id': st.session_state.user }
                 )
                 st.write('Here are the current details of the patient:')
                 show_patient_details(c.fetchall())
-
+            l = c.fetchall()
             st.write('Enter new details of the patient:')
-            self.contact_number_1 = st.text_input('Contact number')
-            contact_number_2 = st.text_input('Alternate contact number (optional)')
-            self.contact_number_2 = (lambda phone : None if phone == '' else phone)(contact_number_2)
+            self.contact_number = st.text_input('Contact number')
             self.weight = st.number_input('Weight (in kg)', value = 0, min_value = 0, max_value = 400)
             self.height = st.number_input('Height (in cm)', value = 0, min_value = 0, max_value = 275)
             self.address = st.text_area('Address')
-            self.city = st.text_input('City')
-            self.state = st.text_input('State')
-            self.pin_code = st.text_input('PIN code')
-            self.next_of_kin_name = st.text_input("Next of kin's name")
-            self.next_of_kin_relation_to_patient = st.text_input("Next of kin's relation to patient")
-            self.next_of_kin_contact_number = st.text_input("Next of kin's contact number")
-            email_id = st.text_input('Email ID (optional)')
-            self.email_id = (lambda email : None if email == '' else email)(email_id)
             update = st.button('Update')
 
             # executing SQLite statements to update this patient's record in the database
@@ -252,25 +300,16 @@ class Patient:
                     c.execute(
                         """
                         UPDATE patient_record
-                        SET age = :age, contact_number_1 = :phone_1,
-                        contact_number_2 = :phone_2, weight = :weight,
-                        height = :height, address = :address, city = :city,
-                        state = :state, pin_code = :pin, next_of_kin_name = :kin_name,
-                        next_of_kin_relation_to_patient = :kin_relation,
-                        next_of_kin_contact_number = :kin_phone, email_id = :email_id
+                        SET age = :age, contact_number = :phone,
+                         weight = :weight,
+                        height = :height, address = :address,room_id = :room
                         WHERE id = :id;
                         """,
                         {
                             'id': id, 'age': self.age,
-                            'phone_1': self.contact_number_1,
-                            'phone_2': self.contact_number_2,
+                            'phone': self.contact_number,
                             'weight': self.weight, 'height': self.height,
-                            'address': self.address, 'city': self.city,
-                            'state': self.state, 'pin': self.pin_code,
-                            'kin_name': self.next_of_kin_name,
-                            'kin_relation': self.next_of_kin_relation_to_patient,
-                            'kin_phone': self.next_of_kin_contact_number,
-                            'email_id': self.email_id
+                            'address': self.address,  'room' : self.room
                         }
                     )
                 st.success('Patient details updated successfully.')
