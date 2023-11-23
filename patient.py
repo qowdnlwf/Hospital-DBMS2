@@ -37,7 +37,7 @@ def calculate_age(dob):
 # function to show the details of patient(s) given in a list (provided as a parameter)
 def show_patient_details(list_of_patients):
     patient_titles = ['Patient ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)',
-                     'Blood group', 'Contact number',  'Weight (kg)', 'Height (cm)', 'Address',]
+                     'Blood group', 'Contact number',  'Weight (kg)', 'Height (cm)', 'Address', 'ROOM']
     if len(list_of_patients) == 0:
         st.warning('No data to show')
     elif len(list_of_patients) == 1:
@@ -65,6 +65,7 @@ class Patient:
         self.height = int()
         self.weight = int()
         self.address = str()
+        self.password = str()
 
     # method to add a new patient record to the database
     def add_patient(self):
@@ -112,6 +113,77 @@ class Patient:
                         'height': self.height, 'address': self.address,
                         'room': None
                     }
+                )
+            st.success('Patient details saved successfully.')
+            st.write('Your Patient ID is: ', self.id)
+            conn.close()
+
+    def add_patient_account(self):
+        st.write('Enter patient details:')
+        self.name = st.text_input('Full name')
+        gender = st.radio('Gender', ['Female', 'Male'])
+
+        self.gender = gender
+        dob = st.date_input('Date of birth (YYYY/MM/DD)')
+        st.info('If the required date is not in the calendar, please type it in the box above.')
+        self.date_of_birth = dob.strftime('%d-%m-%Y')  # converts date of birth to the desired string format
+        self.age = calculate_age(dob)
+        self.blood_group = st.text_input('Blood group')
+        self.contact_number = st.text_input('Contact number')
+        self.weight = st.number_input('Weight (in kg)', value=0, min_value=0, max_value=400)
+        self.height = st.number_input('Height (in cm)', value=0, min_value=0, max_value=275)
+        self.address = st.text_area('Address')
+        self.password = st.text_input("Enter password", type="password")
+        password_confirm = st.text_input("Confirm password", type="password")
+        self.id = generate_patient_id()
+        save = st.button('Save')
+
+        # executing SQLite statements to save the new patient record to the database
+        if save:
+            if self.password != password_confirm:
+                st.error('Password Confirmation Error')
+                return
+            conn, c = db.connection()
+            with conn:
+                c.execute(
+                    """
+                    INSERT INTO patient_record
+                    (
+                        id, name, age, gender, date_of_birth, blood_group,
+                        contact_number, 
+                        weight, height, address, room_id
+                    )
+                    VALUES (
+                        :id, :name, :age, :gender, :dob, :blood_group,
+                        :phone, :weight, :height,
+                        :address, :room
+                    );
+                    """,
+                    {
+                        'id': self.id, 'name': self.name, 'age': self.age,
+                        'gender': self.gender, 'dob': self.date_of_birth,
+                        'blood_group': self.blood_group,
+                        'phone': self.contact_number,
+                        'weight': self.weight,
+                        'height': self.height, 'address': self.address,
+                        'room': None
+                    }
+                )
+
+                c.execute(
+                    """
+                    INSERT INTO account
+                    (
+                        user_id, auth_type,password
+                    )
+                    VALUES (
+                        :id, :type, :passwd
+                    );
+                    """,
+                    {
+                        'id' : self.id, 'type':"Patient", 'passwd':self.password
+                    }
+
                 )
             st.success('Patient details saved successfully.')
             st.write('Your Patient ID is: ', self.id)
