@@ -66,6 +66,7 @@ class Patient:
         self.weight = int()
         self.address = str()
         self.password = str()
+        self.room = str()
 
     # method to add a new patient record to the database
     def add_patient(self):

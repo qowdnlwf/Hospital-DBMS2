@@ -27,7 +27,7 @@ def verify_doctor_id(doctor_id):
 # function to show the details of doctor(s) given in a list (provided as a parameter)
 def show_doctor_details(list_of_doctors):
     doctor_titles = ['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)',
-                     'Department ID',  'Contact number']
+                     'Department Name',  'Contact number']
     if len(list_of_doctors) == 0:
         st.warning('No data to show')
     elif len(list_of_doctors) == 1:
@@ -140,7 +140,7 @@ class Doctor:
                         'gender': self.gender, 'dob': self.date_of_birth,
                         'dept_id': self.department_id,
                         'phone': self.contact_number,
-                        'verified': False
+                        'verified': True
                     }
                 )
             st.success('Doctor details saved successfully.')
@@ -244,14 +244,14 @@ class Doctor:
                 show_doctor_details(c.fetchall())
 
             st.write('Enter new details of the doctor:')
-            department_id = st.text_input('Department ID')
-            if department_id == '':
+            department_name = st.text_input('Department Name')
+            if department_name == '':
                 st.empty()
-            elif not department.verify_department_id(department_id):
-                st.error('Invalid Department ID')
+            elif not department.verify_department_name(department_name):
+                st.error('Invalid Department Name')
             else:
                 st.success('Verified')
-                self.department_id = department_id
+                self.department_id = get_department_id(department_name)
             self.contact_number = st.text_input('Contact number')
             update = st.button('Update')
 
