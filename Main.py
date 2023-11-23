@@ -1,5 +1,4 @@
 import streamlit as st
-
 import config
 import database as db
 from patient import Patient
@@ -8,7 +7,6 @@ from doctor import Doctor
 from prescription import Prescription
 from medical_test import Medical_Test
 import sqlite3 as sql
-
 
 def verify_password(id, password):
     if id == 'root':
@@ -34,7 +32,6 @@ def verify_password(id, password):
 
     return verify, type
 
-
 def login():
     if st.session_state.access:
         st.sidebar.success(f'Welcome {st.session_state.auth_type}')
@@ -43,7 +40,6 @@ def login():
         st.empty()
     else:
         st.sidebar.error("Wrong Password")
-
 
 # function to verify edit mode password
 def verify_edit_mode_password():
@@ -57,7 +53,6 @@ def verify_edit_mode_password():
         st.sidebar.error('Invalid edit mode password')
         return False
 
-
 # function to verify doctor/medical lab scientist access code
 def verify_dr_mls_access_code():
     dr_mls_access_code = st.sidebar.text_input('Enter doctor/medical lab scientist access code', type='password')
@@ -69,7 +64,6 @@ def verify_dr_mls_access_code():
     else:
         st.sidebar.error('Invalid access code')
         return False
-
 
 # function to perform various operations of the patient module (according to user's selection)
 def patients():
@@ -98,7 +92,6 @@ def patients():
     elif option == option_list[5]:
         st.subheader('SEARCH PATIENT')
         p.search_patient()
-
 
 # function to perform various operations of the doctor module (according to user's selection)
 def doctors():
@@ -130,7 +123,6 @@ def doctors():
     elif option == option_list[6]:
         st.subheader("VERIFICATION")
 
-
 # function to perform various operations of the prescription module (according to user's selection)
 def prescriptions():
     st.header('PRESCRIPTIONS')
@@ -153,7 +145,6 @@ def prescriptions():
         st.subheader('PRESCRIPTIONS OF A PARTICULAR PATIENT')
         m.prescriptions_by_patient()
 
-
 # function to perform various operations of the medical_test module (according to user's selection)
 def medical_tests():
     st.header('MEDICAL TESTS')
@@ -175,7 +166,6 @@ def medical_tests():
     elif option == option_list[4]:
         st.subheader('MEDICAL TESTS OF A PARTICULAR PATIENT')
         t.medical_tests_by_patient()
-
 
 # function to perform various operations of the department module (according to user's selection)
 def departments():
@@ -208,7 +198,6 @@ def departments():
         st.subheader('DOCTORS OF A PARTICULAR DEPARTMENT')
         d.list_dept_doctors()
 
-
 # function to implement and initialise home/main menu on successful user authentication
 def home(auth_type):
     if auth_type == 'Admin':
@@ -231,11 +220,6 @@ def home(auth_type):
     if auth_type == 'Doctor':
         pass
 
-
-if 'login' not in st.session_state:
-    st.session_state.login = False
-
-
 def login_clicked():
     st.session_state.access, st.session_state.auth_type = verify_password(user_id, password)
     if st.session_state.access:
@@ -243,7 +227,8 @@ def login_clicked():
     else:
         st.sidebar.error('Invalid username or password')
 
-
+if 'login' not in st.session_state:
+    st.session_state.login = False
 
 st.title('HEALTHCARE INFORMATION MANAGEMENT SYSTEM')
 db.db_init()  # establishes connection to the database and create tables (if they don't exist yet)

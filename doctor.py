@@ -27,7 +27,7 @@ def verify_doctor_id(doctor_id):
 # function to show the details of doctor(s) given in a list (provided as a parameter)
 def show_doctor_details(list_of_doctors):
     doctor_titles = ['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)',
-                     'Department ID',  'Contact number']
+                     'Contact number', 'Department ID', 'Department name','verified']
     if len(list_of_doctors) == 0:
         st.warning('No data to show')
     elif len(list_of_doctors) == 1:
@@ -94,8 +94,9 @@ class Doctor:
         self.age = int()
         self.gender = str()
         self.date_of_birth = str()
-        self.department_id = str()
         self.contact_number = str()
+        self.department_id = str()
+        self.department_name = str()
 
     # method to add a new doctor record to the database
     def add_doctor(self):
@@ -114,6 +115,7 @@ class Doctor:
             st.error('Invalid Department Name')
         else:
             st.success('Verified')
+            self.department_name = department_name
             self.department_id = get_department_id(department_name)
         self.contact_number = st.text_input('Contact number')
         self.id = generate_doctor_id()
@@ -128,17 +130,18 @@ class Doctor:
                     INSERT INTO doctor_record
                     (
                         id, name, age, gender, date_of_birth,
-                        department_id,  contact_number,verified      
+                        contact_number,department_id, department_name, verified      
                     )
                     VALUES (
-                        :id, :name, :age, :gender, :dob,  :dept_id,  :phone, :verified
+                        :id, :name, :age, :gender, :dob, :phone, :dept_id, :dept_name,  :verified
                     );
                     """,
                     {
                         'id': self.id, 'name': self.name, 'age': self.age,
                         'gender': self.gender, 'dob': self.date_of_birth,
-                        'dept_id': self.department_id,
                         'phone': self.contact_number,
+                        'dept_id': self.department_id,
+                        'dept_name': self.department_name,
                         'verified': False
                     }
                 )
@@ -179,6 +182,7 @@ class Doctor:
             else:
                 st.success('Verified')
                 self.department_id = department_id
+                self.department_name = get_department_name(department_id)
             self.contact_number = st.text_input('Contact number')
             update = st.button('Update')
 
@@ -203,13 +207,16 @@ class Doctor:
                     c.execute(
                         """
                         UPDATE doctor_record
-                        SET age = :age, department_id = :dept_id,
-                     contact_number = :phone,
+                        SET age = :age, contact_number = :phone,
+                        department_id = :dept_id, department_name = :dept_name, 
                         WHERE id = :id;
                         """,
                         {
-                            'id': id, 'age': self.age, 'dept_id': self.department_id,
+                            'id': id, 'age': self.age,
                             'phone': self.contact_number,
+                            'dept_id': self.department_id,
+                            'dept_name': self.department_name,
+
                         }
                     )
                 st.success('Doctor details updated successfully.')

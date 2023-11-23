@@ -100,7 +100,7 @@ class Patient:
                     VALUES (
                         :id, :name, :age, :gender, :dob, :blood_group,
                         :phone, :weight, :height,
-                        :address, room
+                        :address, :room
                     );
                     """,
                     {
