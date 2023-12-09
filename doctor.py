@@ -134,11 +134,11 @@ class Doctor:
                         'gender': self.gender, 'dob': self.date_of_birth,
                         'phone': self.contact_number,
                         'dept_id': self.department_id,
-                        'verified': False
+                        'verified': True
                     }
                 )
             st.success('Doctor details saved successfully.')
-            st.write('The New Doctor ID is: ', self.id, '\nWaiting to be verified')
+            st.write('The New Doctor ID is: ', self.id)
             conn.close()
 
 
@@ -376,14 +376,50 @@ class Doctor:
             conn.close()
 
     def verify_doctor(self):
+        #show
         conn, c = db.connection()
         with conn:
             c.execute(
                 """
-                SELECT name
+                SELECT *
                 FROM doctor_record
                 WHERE verified = FALSE;
-                """,
+                """
         )
+        st.write('Here are the details of the doctors to be verified:')
+        show_doctor_details(c.fetchall())
+
+        #correct
+        id = st.text_input('Enter Doctor ID of the doctor to be verified:')
+        if id == '':
+            st.empty()
+        elif not verify_doctor_id(id):
+            st.error('Invalid Doctor ID')
+        else:
+            st.success('Found')
+            verify = st.button('Verify')
+            if verify:
+                conn, c = db.connection()
+                with conn:
+                        c.execute(
+                            """
+                            UPDATE doctor_record
+                            SET verified = :verified
+                            WHERE id = :id;
+                            """,
+                            {
+                                'id': id,
+                                'verified': True,
+                            }
+                        )
+                st.success('The Doctor'+ id +' is verified successfully.')
+        conn.close()
+        Refresh()
+
+def Refresh():
+    button = st.button("Click me to refresh the page")
+
+    if button:
+        st.experimental_rerun()
 
 
