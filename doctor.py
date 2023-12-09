@@ -413,8 +413,8 @@ class Doctor:
                             }
                         )
                 st.success('The Doctor'+ id +' is verified successfully.')
-        conn.close()
-        Refresh()
+                Refresh()
+        conn.close()      
 
 def Refresh():
     button = st.button("Click me to refresh the page")
