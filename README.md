@@ -32,7 +32,7 @@ The application uses [__sqlite3__](https://docs.python.org/3/library/sqlite3.htm
   ```
 4. Move to the same directory in command prompt/terminal and execute the following command (running this command will open the application in a new tab in your default browser automatically; you don't need internet connection to work with this application):
 ```cmd
-> streamlit run hims_app.py
+> streamlit run app.py
 ```
 
 #### NOTE:

@@ -207,8 +207,24 @@ class Patient:
                         'room': None
                     }
                 )
+                c.execute(
+                    """
+                    INSERT INTO account
+                    (
+                        user_id, auth_type,password
+                    )
+                    VALUES (
+                        :id, :type, :passwd
+                    );
+                    """,
+                    {
+                        'id': self.id, 'type': "Patient", 'passwd': '123456'
+                    }
+
+                )
             st.success('Patient details saved successfully.')
-            st.write('Your Patient ID is: ', self.id)
+            st.write('The Patient ID is: ', self.id)
+            st.write('The Default Password is: 123456', self.id)
             conn.close()
 
     def add_patient_account(self):
@@ -284,6 +300,13 @@ class Patient:
 
     # method to update an existing patient record in the database
     def update_patient(self):
+        id = st.text_input('Enter Patient ID of the patient to be updated')
+        if id == '':
+            st.empty()
+        elif not verify_patient_id(id):
+            st.error('Invalid Patient ID')
+        else:
+            st.success('Found')
             conn, c = db.connection()
 
             # shows the current details of the patient before updating
@@ -294,11 +317,10 @@ class Patient:
                     FROM patient_record
                     WHERE id = :id;
                     """,
-                    { 'id': st.session_state.user }
+                    { 'id': id }
                 )
                 st.write('Here are the current details of the patient:')
                 show_patient_details(c.fetchall())
-            l = c.fetchall()
             st.write('Enter new details of the patient:')
             self.contact_number = st.text_input('Contact number')
             self.weight = st.number_input('Weight (in kg)', value = 0, min_value = 0, max_value = 400)
@@ -340,6 +362,7 @@ class Patient:
                         }
                     )
                 st.success('Patient details updated successfully.')
+                Refresh()
                 conn.close()
 
     # method to delete an existing patient record from the database
@@ -417,3 +440,9 @@ class Patient:
                 st.write('Here are the details of the patient you searched for:')
                 show_patient_details(c.fetchall())
             conn.close()
+
+def Refresh():
+    button = st.button("Click me to refresh the page")
+
+    if button:
+        st.experimental_rerun()
