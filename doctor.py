@@ -79,6 +79,53 @@ def get_department_id(dept_name):
         )
     return c.fetchone()[0]
 
+def show_patient():
+    st.write('Here are the patient records')
+    patient_titles = ['Name', 'Age', 'Gender', 'Contact Number']
+    conn, c = db.connection()
+    with conn:
+        c.execute(
+            """
+            SELECT name,age,gender,contact_number
+            FROM patient_record;
+            """
+        )
+
+    list_of_patient = c.fetchall()
+    if len(list_of_patient) == 0:
+        st.warning('No data to show')
+    elif len(list_of_patient) == 1:
+        record_details = [x for x in list_of_patient[0]]
+        series = pd.Series(data=record_details, index=patient_titles)
+        st.write(series)
+    else:
+        record_details = []
+        for record in list_of_patient:
+            record_details.append([x for x in record])
+        df = pd.DataFrame(data=record_details, columns=patient_titles)
+        st.write(df)
+
+def select_department():
+    conn, c = db.connection()
+    with conn:
+        c.execute(
+            """
+            SELECT name
+            FROM department_record
+            """
+        )
+    list_of_department = c.fetchall()
+    new_list = []
+    for x in list_of_department:
+        new_list.append(x[0])
+
+    department_name = st.selectbox('Select Department', new_list)
+    department_id = get_department_id(department_name)
+
+    conn.close()
+
+    return department_name,department_id
+
 # class containing all the fields and methods required to work with the doctors' table in the database
 class Doctor:
 
@@ -101,15 +148,18 @@ class Doctor:
         st.info('If the required date is not in the calendar, please type it in the box above.')
         self.date_of_birth = dob.strftime('%d-%m-%Y')  # converts date of birth to the desired string format
         self.age = calculate_age(dob)
-        department_name = st.text_input('Department Name')
-        if department_name == '':
-            st.empty()
-        elif not department.verify_department_name(department_name):
-            st.error('Invalid Department Name')
-        else:
-            st.success('Verified')
-            self.department_name = department_name
-            self.department_id = get_department_id(department_name)
+
+        self.department_name,self.department_id = select_department()
+
+        # department_name = st.text_input('Department Name')
+        # if department_name == '':
+        #     st.empty()
+        # elif not department.verify_department_name(department_name):
+        #     st.error('Invalid Department Name')
+        # else:
+        #     st.success('Verified')
+        #     self.department_name = department_name
+        #     self.department_id = get_department_id(department_name)
         self.contact_number = st.text_input('Contact number')
         self.id = generate_doctor_id()
         save = st.button('Save')
@@ -141,7 +191,6 @@ class Doctor:
             st.write('The New Doctor ID is: ', self.id)
             conn.close()
 
-
     def add_doctor_account(self):
         st.write('Enter doctor details:')
         self.name = st.text_input('Full name')
@@ -151,14 +200,8 @@ class Doctor:
         st.info('If the required date is not in the calendar, please type it in the box above.')
         self.date_of_birth = dob.strftime('%d-%m-%Y')  # converts date of birth to the desired string format
         self.age = calculate_age(dob)
-        department_name = st.text_input('Department Name')
-        if department_name == '':
-            st.empty()
-        elif not department.verify_department_name(department_name):
-            st.error('Invalid Department Name')
-        else:
-            st.success('Verified')
-            self.department_id = get_department_id(department_name)
+
+        department_name,self.department_id = select_department()
         self.contact_number = st.text_input('Contact number')
         self.id = generate_doctor_id()
         self.password = st.text_input('Enter password',type="password")
@@ -211,11 +254,13 @@ class Doctor:
             st.write('The New Doctor ID is: ', self.id, '\nWaiting to be verified')
             conn.close()
 
-
-
     # method to update an existing doctor record in the database
-    def update_doctor(self):
-        id = st.text_input('Enter Doctor ID of the doctor to be updated')
+    def update_doctor(self,ID = ''):
+        id = str()
+        if ID == '':
+            id = st.text_input('Enter Doctor ID of the doctor to be updated')
+        else:
+            id = ID 
         if id == '':
             st.empty()
         elif not verify_doctor_id(id):
@@ -240,28 +285,34 @@ class Doctor:
             with conn:
                 c.execute(
                     """
-                    SELECT contact_number
+                    SELECT password
+                    FROM account
+                    WHERE user_id = :user_id;
+                    """,
+                    {'user_id': id}
+                )
+                password = (c.fetchone())[0]
+                st.write('Your account password is: ' + password)
+
+            with conn:
+                c.execute(
+                    """
+                    SELECT *
                     FROM doctor_record
                     WHERE id = :id;
                     """,
                     {'id': id}
                 )
                 rec = c.fetchone()
-                old_contact_number = rec[0]
-                st.write(old_contact_number)
             #['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)', 'Contact number', 'Department ID','verified']
 
             st.write('Enter new details of the doctor:')
-            department_id = st.text_input('Department ID')
-            if department_id == '':
-                st.empty()
-            elif not department.verify_department_id(department_id):
-                st.error('Invalid Department ID')
-            else:
-                st.success('Found')
-                self.department_id = department_id
-                self.department_name = get_department_name(department_id)
-                self.contact_number = st.text_input('Contact number',old_contact_number)
+            self.department_name,self.department_id = select_department()
+            st.write('Enter doctor details:')
+            self.name = st.text_input('Full name',rec[1])
+            self.contact_number = st.text_input('Contact number',rec[5])
+            self.password = st.text_input('Password',password)
+            
             update = st.button('Update')
 
             # executing SQLite statements to update this doctor's record in the database
@@ -285,19 +336,34 @@ class Doctor:
                     c.execute(
                         """
                         UPDATE doctor_record
-                        SET age = :age, contact_number = :phone,
+                        SET age = :age, contact_number = :phone, name = :name,
                         department_id = :dept_id
                         WHERE id = :id;
                         """,
                         {
                             'id': id, 'age': self.age,
                             'phone': self.contact_number,
+                            'name' : self.name,
                             'dept_id': self.department_id,
 
                         }
                     )
+
+                with conn:
+                    c.execute(
+                        """
+                        UPDATE account
+                        SET password = :password
+                        WHERE user_id = :user_id;
+                        """,
+                        {
+                            'user_id': id, 'password': self.password,
+                        }
+                    )
+                
                 st.success('Doctor details updated successfully.')
                 conn.close()
+                Refresh()
 
     # method to delete an existing doctor record from the database
     def delete_doctor(self):

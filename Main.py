@@ -3,7 +3,7 @@ import config
 import database as db
 from patient import *
 from department import Department
-from doctor import Doctor
+from doctor import *
 from prescription import Prescription
 from medical_test import Medical_Test
 import sqlite3 as sql
@@ -35,7 +35,7 @@ def verify_password(id, password):
 def login():
     if st.session_state.access:
         st.sidebar.success(f'Welcome {st.session_state.auth_type}')
-        home(st.session_state.auth_type)
+        home(st.session_state.auth_type,st.session_state.user)
     elif password == '':
         st.empty()
     else:
@@ -93,15 +93,22 @@ def patients():
         st.subheader('SEARCH PATIENT')
         p.search_patient()
 
-def edit_account():
-    st.header('PATIENTS')
-    p = Patient()
-    st.subheader('Update PATIENT')
-    p.update_patient()
+def edit_account(auth_type,id):
+    if auth_type == 'Patient':
+        st.header('PATIENTS')
+        p = Patient()
+        st.subheader('Update PATIENT')
+        p.update_patient()
+    elif auth_type == 'Doctor':
+        st.header('Doctor\'s Personal Information')
+        d = Doctor()
+        d.update_doctor(id)
+
 def query_1():
     st.header('Medical Record')
 
     show_medical_record(st.session_state.user)
+
 def query_2():
     st.header('Medical test')
     show_result(st.session_state.user)
@@ -217,7 +224,7 @@ def departments():
         d.list_dept_doctors()
 
 # function to implement and initialise home/main menu on successful user authentication
-def home(auth_type):
+def home(auth_type,id):
     if auth_type == 'Admin':
         option = st.sidebar.selectbox('Select Module',
                                       ['', 'Patients', 'Doctors', 'Prescriptions', 'Medical Tests', 'Departments'])
@@ -235,15 +242,20 @@ def home(auth_type):
     if auth_type == 'Patient':
         option = st.sidebar.selectbox('Select function', ['', 'Edit', 'Query','Test Result', 'Doctor Information'])
         if option == 'Edit':
-            edit_account()
+            edit_account('Patient',id)
         if option == 'Query':
             query_1()
         if option == 'Test Result':
             query_2()
         if option == 'Doctor Information':
             query_3()
+
     if auth_type == 'Doctor':
-        pass
+        option = st.sidebar.selectbox('Select function', ['', 'Personal Information', 'Patient Information'])
+        if option == 'Personal Information':
+            edit_account('Doctor',id)
+        if option == 'Patient Information':
+            show_patient()
 
 def login_clicked():
     st.session_state.access, st.session_state.auth_type = verify_password(user_id, password)
