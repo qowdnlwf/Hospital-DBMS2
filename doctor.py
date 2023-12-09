@@ -25,7 +25,7 @@ def verify_doctor_id(doctor_id):
 # function to show the details of doctor(s) given in a list (provided as a parameter)
 def show_doctor_details(list_of_doctors):
     doctor_titles = ['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)',
-                     'Contact number', 'Department ID', 'Department name','verified']
+                     'Contact number', 'Department ID','verified']
     if len(list_of_doctors) == 0:
         st.warning('No data to show')
     elif len(list_of_doctors) == 1:
@@ -123,10 +123,10 @@ class Doctor:
                     INSERT INTO doctor_record
                     (
                         id, name, age, gender, date_of_birth,
-                        contact_number,department_id, department_name, verified      
+                        contact_number,department_id, verified      
                     )
                     VALUES (
-                        :id, :name, :age, :gender, :dob, :phone, :dept_id, :dept_name,  :verified
+                        :id, :name, :age, :gender, :dob, :phone, :dept_id,  :verified
                     );
                     """,
                     {
@@ -134,7 +134,6 @@ class Doctor:
                         'gender': self.gender, 'dob': self.date_of_birth,
                         'phone': self.contact_number,
                         'dept_id': self.department_id,
-                        'dept_name': self.department_name,
                         'verified': False
                     }
                 )
@@ -238,17 +237,31 @@ class Doctor:
                 st.write('Here are the current details of the doctor:')
                 show_doctor_details(c.fetchall())
 
+            with conn:
+                c.execute(
+                    """
+                    SELECT contact_number
+                    FROM doctor_record
+                    WHERE id = :id;
+                    """,
+                    {'id': id}
+                )
+                rec = c.fetchone()
+                old_contact_number = rec[0]
+                st.write(old_contact_number)
+            #['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)', 'Contact number', 'Department ID','verified']
+
             st.write('Enter new details of the doctor:')
-            department_name = st.text_input('Department Name')
-            if department_name == '':
+            department_id = st.text_input('Department ID')
+            if department_id == '':
                 st.empty()
-            elif not department.verify_department_name(department_name):
-                st.error('Invalid Department Name')
+            elif not department.verify_department_id(department_id):
+                st.error('Invalid Department ID')
             else:
                 st.success('Found')
                 self.department_id = department_id
                 self.department_name = get_department_name(department_id)
-            self.contact_number = st.text_input('Contact number')
+                self.contact_number = st.text_input('Contact number',old_contact_number)
             update = st.button('Update')
 
             # executing SQLite statements to update this doctor's record in the database
@@ -273,14 +286,13 @@ class Doctor:
                         """
                         UPDATE doctor_record
                         SET age = :age, contact_number = :phone,
-                        department_id = :dept_id, department_name = :dept_name, 
+                        department_id = :dept_id
                         WHERE id = :id;
                         """,
                         {
                             'id': id, 'age': self.age,
                             'phone': self.contact_number,
                             'dept_id': self.department_id,
-                            'dept_name': self.department_name,
 
                         }
                     )
