@@ -41,29 +41,7 @@ def login():
     else:
         st.sidebar.error("Wrong Password")
 
-# function to verify edit mode password
-def verify_edit_mode_password():
-    edit_mode_password = st.sidebar.text_input('Enter edit mode password', type='password')
-    if edit_mode_password == config.edit_mode_password:
-        st.sidebar.success('Verified')
-        return True
-    elif edit_mode_password == '':
-        st.empty()
-    else:
-        st.sidebar.error('Invalid edit mode password')
-        return False
 
-# function to verify doctor/medical lab scientist access code
-def verify_dr_mls_access_code():
-    dr_mls_access_code = st.sidebar.text_input('Enter doctor/medical lab scientist access code', type='password')
-    if dr_mls_access_code == config.dr_mls_access_code:
-        st.sidebar.success('Verified')
-        return True
-    elif dr_mls_access_code == '':
-        st.empty()
-    else:
-        st.sidebar.error('Invalid access code')
-        return False
 
 # function to perform various operations of the patient module (according to user's selection)
 def patients():
@@ -73,7 +51,7 @@ def patients():
     option = st.sidebar.selectbox('Select function', option_list)
     p = Patient()
     if (option == option_list[1] or option == option_list[2] or option == option_list[
-        3]) and verify_edit_mode_password():
+        3]):
         if option == option_list[1]:
             st.subheader('ADD PATIENT')
             p.add_patient()
@@ -155,8 +133,7 @@ def prescriptions():
                    'Show prescriptions of a particular patient']
     option = st.sidebar.selectbox('Select function', option_list)
     m = Prescription()
-    if (option == option_list[1] or option == option_list[2] or option == option_list[
-        3]) and verify_dr_mls_access_code():
+    if (option == option_list[1] or option == option_list[2] or option == option_list[3]):
         if option == option_list[1]:
             st.subheader('ADD PRESCRIPTION')
             m.add_prescription()
@@ -177,8 +154,7 @@ def medical_tests():
                    'Show medical tests of a particular patient']
     option = st.sidebar.selectbox('Select function', option_list)
     t = Medical_Test()
-    if (option == option_list[1] or option == option_list[2] or option == option_list[
-        3]) and verify_dr_mls_access_code():
+    if (option == option_list[1] or option == option_list[2] or option == option_list[3]):
         if option == option_list[1]:
             st.subheader('ADD MEDICAL TEST')
             t.add_medical_test()
@@ -199,8 +175,7 @@ def departments():
                    'Search department', 'Show doctors of a particular department']
     option = st.sidebar.selectbox('Select function', option_list)
     d = Department()
-    if (option == option_list[1] or option == option_list[2] or option == option_list[
-        3]) and verify_edit_mode_password():
+    if (option == option_list[1] or option == option_list[2] or option == option_list[3]):
         if option == option_list[1]:
             st.subheader('ADD DEPARTMENT')
             d.add_department()
