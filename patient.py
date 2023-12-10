@@ -219,12 +219,13 @@ class Patient:
                     );
                     """,
                     {
-                        'id' : self.id, 'type':"Patient", 'passwd':self.password
+                        'id': self.id, 'type': "Patient", 'passwd': '123456'
                     }
 
                 )
             st.success('Patient details saved successfully.')
-            st.write('Your Patient ID is: ', self.id)
+            st.write('The Patient ID is: ', self.id)
+            st.write('The Default Password is: 123456', self.id)
             conn.close()
 
     def add_patient_account(self):

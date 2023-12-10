@@ -188,6 +188,7 @@ class Doctor:
                         'verified': True
                     }
                 )
+
                 c.execute(
                     """
                     INSERT INTO account
@@ -199,12 +200,13 @@ class Doctor:
                     );
                     """,
                     {
-                        'id': self.id, 'type': "Doctor", 'passwd': self.password
+                        'id': self.id, 'type': "Doctor", 'passwd': '123456'
                     }
 
                 )
             st.success('Doctor details saved successfully.')
             st.write('The New Doctor ID is: ', self.id)
+            st.write('The Default Password is: 123456')
             conn.close()
 
     def add_doctor_account(self):
