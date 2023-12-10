@@ -161,6 +161,7 @@ class Doctor:
         #     self.department_name = department_name
         #     self.department_id = get_department_id(department_name)
         self.contact_number = st.text_input('Contact number')
+        self.password = st.text_input("Enter password", type="password")
         self.id = generate_doctor_id()
         save = st.button('Save')
 
@@ -186,6 +187,21 @@ class Doctor:
                         'dept_id': self.department_id,
                         'verified': True
                     }
+                )
+                c.execute(
+                    """
+                    INSERT INTO account
+                    (
+                        user_id, auth_type,password
+                    )
+                    VALUES (
+                        :id, :type, :passwd
+                    );
+                    """,
+                    {
+                        'id': self.id, 'type': "Doctor", 'passwd': self.password
+                    }
+
                 )
             st.success('Doctor details saved successfully.')
             st.write('The New Doctor ID is: ', self.id)
@@ -401,6 +417,13 @@ class Doctor:
                             WHERE id = :id;
                             """,
                             {'id': id}
+                        )
+                        c.execute(
+                            """
+                            DELETE FROM account
+                            WHERE user_id = :user_id;
+                            """,
+                            {'user_id': id}
                         )
                         st.success('Doctor details deleted successfully.')
             conn.close()

@@ -176,6 +176,7 @@ class Patient:
         self.weight = st.number_input('Weight (in kg)', value = 0, min_value = 0, max_value = 400)
         self.height = st.number_input('Height (in cm)', value = 0, min_value = 0, max_value = 275)
         self.address = st.text_area('Address')
+        self.password = st.text_input("Enter password", type="password")
         self.id = generate_patient_id()
         save = st.button('Save')
 
@@ -206,6 +207,21 @@ class Patient:
                         'height': self.height, 'address': self.address,
                         'room': None
                     }
+                )
+                c.execute(
+                    """
+                    INSERT INTO account
+                    (
+                        user_id, auth_type,password
+                    )
+                    VALUES (
+                        :id, :type, :passwd
+                    );
+                    """,
+                    {
+                        'id' : self.id, 'type':"Patient", 'passwd':self.password
+                    }
+
                 )
             st.success('Patient details saved successfully.')
             st.write('Your Patient ID is: ', self.id)
@@ -385,6 +401,13 @@ class Patient:
                             WHERE id = :id;
                             """,
                             { 'id': id }
+                        )
+                        c.execute(
+                            """
+                            DELETE FROM account
+                            WHERE user_id = :user_id;
+                            """,
+                            {'user_id': id}
                         )
                         st.success('Patient details deleted successfully.')
             conn.close()
