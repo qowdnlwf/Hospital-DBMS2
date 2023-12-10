@@ -1,10 +1,10 @@
 import sqlite3 as sql
-import config
 
+database_name = 'my_hospital'
 
 # function to establish connection to the database, enable foreign key constraint support, and create cursor
 def connection():
-    conn = sql.connect(config.database_name + '.db')
+    conn = sql.connect(database_name + '.db')
     conn.execute("PRAGMA foreign_keys = ON;")
     c = conn.cursor()
     return conn, c
