@@ -227,9 +227,9 @@ def rooms():
     elif option == option_list[6]:
         st.subheader('PATIENTS OF A PARTICULAR ROOM')
         r.list_room_patients()
-    elif option == option_list[7]:
-        st.subheader('ALLOCATE ROOM')
-        r.allocate_room_id()
+    # elif option == option_list[7]:
+    #     st.subheader('ALLOCATE ROOM')
+    #     r.allocate_room_id()
 
 # function to implement and initialise home/main menu on successful user authentication
 def home(auth_type,id):
