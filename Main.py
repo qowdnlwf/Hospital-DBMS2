@@ -1,5 +1,4 @@
 import streamlit as st
-import config
 import database as db
 from patient import *
 from department import Department
