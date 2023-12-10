@@ -3,6 +3,7 @@ from datetime import datetime, date
 import database as db
 import pandas as pd
 from department import *
+import room
 
 # function to verify patient id
 def verify_patient_id(patient_id):
@@ -178,6 +179,8 @@ class Patient:
         self.address = st.text_area('Address')
         self.password = st.text_input("Enter password", type="password")
         self.id = generate_patient_id()
+        self.room_id = room.get_room_id()
+        room.update_room_current(self.room_id)
         save = st.button('Save')
 
         # executing SQLite statements to save the new patient record to the database
@@ -205,7 +208,7 @@ class Patient:
                         'phone': self.contact_number,
                         'weight': self.weight,
                         'height': self.height, 'address': self.address,
-                        'room': None
+                        'room': self.room_id
                     }
                 )
                 c.execute(
@@ -245,6 +248,8 @@ class Patient:
         self.address = st.text_area('Address')
         self.password = st.text_input("Enter password", type="password")
         password_confirm = st.text_input("Confirm password", type="password")
+        self.room_id = room.get_room_id()
+        room.update_room_current(self.room_id)
         self.id = generate_patient_id()
         save = st.button('Save')
 
@@ -276,7 +281,7 @@ class Patient:
                         'phone': self.contact_number,
                         'weight': self.weight,
                         'height': self.height, 'address': self.address,
-                        'room': None
+                        'room': self.room_id
                     }
                 )
 

@@ -5,6 +5,7 @@ from department import Department
 from doctor import *
 from prescription import Prescription
 from medical_test import Medical_Test
+from room import Room
 import sqlite3 as sql
 
 def verify_password(id, password):
@@ -197,11 +198,44 @@ def departments():
         st.subheader('DOCTORS OF A PARTICULAR DEPARTMENT')
         d.list_dept_doctors()
 
+def rooms():
+    st.header('ROOMS')
+    option_list = ['', 'Add room', 'Update room', 'Delete room', 'Show complete room record',
+                   'Search room', 'Show patients of a particular room']#, 'Allocate room'
+    option = st.sidebar.selectbox('Select function', option_list)
+    r = Room()
+    if (option == option_list[1] or option == option_list[2] or option == option_list[
+        3]):
+        if option == option_list[1]:
+            st.subheader('ADD ROOM')
+            r.add_room()
+        elif option == option_list[2]:
+            st.subheader('UPDATE ROOM')
+            r.update_room()
+        elif option == option_list[3]:
+            st.subheader('DELETE ROOM')
+            try:
+                r.delete_room()
+            except sql.IntegrityError:  # handles foreign key constraint failure issue (due to integrity error)
+                st.error('This entry cannot be deleted as other records are using it.')
+    elif option == option_list[4]:
+        st.subheader('COMPLETE ROOM RECORD')
+        r.show_all_rooms()
+    elif option == option_list[5]:
+        st.subheader('SEARCH ROOM')
+        r.search_room()
+    elif option == option_list[6]:
+        st.subheader('PATIENTS OF A PARTICULAR ROOM')
+        r.list_room_patients()
+    elif option == option_list[7]:
+        st.subheader('ALLOCATE ROOM')
+        r.allocate_room_id()
+
 # function to implement and initialise home/main menu on successful user authentication
 def home(auth_type,id):
     if auth_type == 'Admin':
         option = st.sidebar.selectbox('Select Module',
-                                      ['', 'Patients', 'Doctors', 'Prescriptions', 'Medical Tests', 'Departments'])
+                                      ['', 'Patients', 'Doctors', 'Prescriptions', 'Medical Tests', 'Departments','Room'])
         if option == 'Patients':
             patients()
         elif option == 'Doctors':
@@ -212,6 +246,8 @@ def home(auth_type,id):
             medical_tests()
         elif option == 'Departments':
             departments()
+        elif option == 'Room':
+            rooms()
 
     if auth_type == 'Patient':
         option = st.sidebar.selectbox('Select function', ['', 'Edit', 'Query','Test Result', 'Doctor Information'])

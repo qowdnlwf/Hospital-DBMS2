@@ -40,7 +40,7 @@ def db_init():
                 type TEXT NOT NULL,
                 capacity INT NOT NULL,
                 current INT NOT NULL, 
-                nurse_id TEXT NOT NULL
+                nurse_name TEXT NOT NULL
             );
             """
         )
