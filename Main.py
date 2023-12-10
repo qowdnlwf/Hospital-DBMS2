@@ -76,15 +76,14 @@ def edit_account(auth_type,id):
         st.header('PATIENTS')
         p = Patient()
         st.subheader('Update PATIENT')
-        p.update_patient()
+        p.update_patient(id)
     elif auth_type == 'Doctor':
         st.header('Doctor\'s Personal Information')
         d = Doctor()
-        d.update_doctor(id)
+        d.update_doctor(ID = id)
 
 def query_1():
     st.header('Medical Record')
-
     show_medical_record(st.session_state.user)
 
 def query_2():
@@ -109,7 +108,7 @@ def doctors():
             dr.add_doctor()
         elif option == option_list[2]:
             st.subheader('UPDATE DOCTOR')
-            dr.update_doctor()
+            dr.update_doctor(type = 'Admin')
         elif option == option_list[3]:
             st.subheader('DELETE DOCTOR')
             try:
@@ -250,8 +249,8 @@ def home(auth_type,id):
             rooms()
 
     if auth_type == 'Patient':
-        option = st.sidebar.selectbox('Select function', ['', 'Edit', 'Query','Test Result', 'Doctor Information'])
-        if option == 'Edit':
+        option = st.sidebar.selectbox('Select function', ['', 'Personal Information', 'Query','Test Result', 'Doctor Information'])
+        if option == 'Personal Information':
             edit_account('Patient',id)
         if option == 'Query':
             query_1()

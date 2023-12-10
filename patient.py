@@ -95,7 +95,7 @@ def show_doctor():
 
 
 def show_medical_record(userID):
-    record_titles = ['Patient ID', 'Doctor ID', 'Diagnosis', 'Comment', 'M1', 'M1_dosage', 'M2', 'M2_dosage', 'M3',
+    record_titles = ['Prescription ID', 'Patient ID', 'Patient Name', 'Doctor ID', 'Doctor Name', 'Diagnosis', 'Comment', 'M1', 'M1_dosage', 'M2', 'M2_dosage', 'M3',
                      'M3_dosage']
     conn, c = db.connection()
 
@@ -103,7 +103,7 @@ def show_medical_record(userID):
         c.execute(
             """
             SELECT *
-            FROM medical_record
+            FROM prescription_record
             WHERE patient_id = :id;
             """, {'id': userID}
         )
@@ -123,7 +123,7 @@ def show_medical_record(userID):
 
 
 def show_result(userID):
-    record_titles = ['Test ID', 'Test Name', 'Patient ID', 'Doctor ID', 'Test time', 'Result time', 'Result', 'Comment',
+    record_titles = ['Test ID', 'Test Name', 'Patient ID', 'Patient Name', 'Doctor ID', 'Doctor Name', 'Medical_lab_scientist_id', 'Test time', 'Result time', 'Result and Diagnosis', 'Description', 'Comments',
                      'Cost']
     conn, c = db.connection()
 
@@ -228,7 +228,7 @@ class Patient:
                 )
             st.success('Patient details saved successfully.')
             st.write('The Patient ID is: ', self.id)
-            st.write('The Default Password is: 123456', self.id)
+            st.write('The Default Password is: 123456')
             conn.close()
 
     def add_patient_account(self):
@@ -305,8 +305,13 @@ class Patient:
             conn.close()
 
     # method to update an existing patient record in the database
-    def update_patient(self):
-        id = st.text_input('Enter Patient ID of the patient to be updated')
+    def update_patient(self,ID = ''):
+        id = str()
+        if ID == '':
+            id = st.text_input('Enter Doctor ID of the doctor to be updated')
+        else:
+            id = ID 
+        
         if id == '':
             st.empty()
         elif not verify_patient_id(id):

@@ -273,7 +273,7 @@ class Doctor:
             conn.close()
 
     # method to update an existing doctor record in the database
-    def update_doctor(self,ID = ''):
+    def update_doctor(self,ID = '',type = ''):
         id = str()
         if ID == '':
             id = st.text_input('Enter Doctor ID of the doctor to be updated')
@@ -325,8 +325,9 @@ class Doctor:
             #['Doctor ID', 'Name', 'Age', 'Gender', 'Date of birth (DD-MM-YYYY)', 'Contact number', 'Department ID','verified']
 
             st.write('Enter new details of the doctor:')
-            self.department_name,self.department_id = select_department()
-            st.write('Enter doctor details:')
+            if type == 'Admin':
+                self.department_name,self.department_id = select_department()
+            else: self.department_id = rec[6]
             self.name = st.text_input('Full name',rec[1])
             self.contact_number = st.text_input('Contact number',rec[5])
             self.password = st.text_input('Password',password)
